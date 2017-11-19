@@ -8,11 +8,16 @@
 //You can set up global variables here:
 //create an object/variable of type LiquidCrystal, call it lcd
 //then tell it what pins to reference
-LiquidCrystal lcd(1,2,4,5,6,7);
+LiquidCrystal lcd(11,12,4,5,6,7);
 
 //create an object of the type created in the library. Name it bmp
 //then assign it some sort of id?
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
+
+int ledStormy = 8;
+int ledRainy = 9;
+int ledChange = 10;
+
 
 void displaySensorDetails()
 {
@@ -84,12 +89,66 @@ void loop() {
 //    lcd.clear();
 //    delay(500);
 
-    lcd.print("Atmos Pressure: ");
+    lcd.print("Atmospheric");
     lcd.setCursor(0,1);
-    lcd.print(String(event.pressure *0.01450377) + " psi");
+    lcd.print("Pressure:");
     delay(2000);
     lcd.clear();
+    lcd.print(String(event.pressure *0.01450377) + " psi/" + String(event.pressure));
+//    delay(2000);
+//    lcd.clear();
+//    lcd.print(event.pressure);
+    lcd.setCursor(0,1);
+    lcd.print("hectoPascals");
+     delay(2000);
+//    lcd.scrollDisplayLeft();
+//    delay(7000);
+    lcd.clear();
     delay(500);
+
+//  create logic to write alerts dependent on range of readings
+    if (event.pressure < 970) {
+//      lcd.autoscroll();
+      digitalWrite(ledStormy, HIGH);
+      lcd.print("Stormy weather may be coming.");
+      delay(1000);
+      lcd.clear();
+      delay(500);
+    }
+    else if (event.pressure >= 970 && event.pressure < 990) {
+//      lcd.autoscroll();
+      digitalWrite(ledRainy, HIGH);
+      lcd.print("Rainy weather may be coming.");
+      delay(1000);
+      lcd.clear();
+      delay(500);
+    }
+    else if (event.pressure >= 990 && event.pressure < 1010) {
+//      lcd.autoscroll();
+      digitalWrite(ledChange, HIGH);
+      lcd.print("Change in");
+      lcd.setCursor(0,1);
+      lcd.print("weather ahead.");
+      delay(3000);
+      lcd.clear();
+      delay(500);
+    }
+    else if (event.pressure >= 1010 && event.pressure < 1030) {
+//      lcd.autoscroll();
+      lcd.print("Fair weather ahead.");
+      delay(1000);
+      lcd.clear();
+      delay(500);
+    }
+    else if (event.pressure >= 1030) {
+//      lcd.autoscroll();
+      lcd.print("Very dry weather ahead.");
+      delay(1000);
+      lcd.clear();
+      delay(500);
+    } else {
+      lcd.print("Error");
+    }
     
     /* Calculating altitude with reasonable accuracy requires pressure    *
      * sea level pressure for your position at the moment the data is     *
