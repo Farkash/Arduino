@@ -1,9 +1,10 @@
-//in C, when including files as sources, you often will use header files,
+ //in C, when including files as sources, you often will use header files,
 //which contain functions for example They are libraries essentially.
 #include <Adafruit_BMP085_U.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include <LiquidCrystal.h>
+#include <math.h>
 
 //You can set up global variables here:
 //create an object/variable of type LiquidCrystal, call it lcd
@@ -36,7 +37,7 @@ void displaySensorDetails()
 }
 
 void greeting() {
-    lcd.print("Hello Dad.");
+    lcd.print("Hello Dad & Lori.");
   delay(1000);
   lcd.setCursor(0,1);
   lcd.print("This is your");
@@ -68,13 +69,13 @@ void setup() {
   
   /* Display some basic information on this sensor */
 //  displaySensorDetails();
+  greeting();
 }
+
 
 void loop() {
   sensors_event_t event;
   bmp.getEvent(&event);
-
-  greeting();
  
   /* Display the results (barometric pressure is measure in hPa) */
   if (event.pressure)
@@ -94,13 +95,13 @@ void loop() {
     lcd.print("Pressure:");
     delay(2000);
     lcd.clear();
-    lcd.print(String(event.pressure *0.01450377) + " psi/" + String(event.pressure));
-//    delay(2000);
-//    lcd.clear();
-//    lcd.print(event.pressure);
+    lcd.print((event.pressure *0.01450377), 1);
+    lcd.setCursor(5,0);
+    lcd.print("psi / ");
+    lcd.print(event.pressure, 1);
     lcd.setCursor(0,1);
     lcd.print("hectoPascals");
-     delay(2000);
+     delay(3000);
 //    lcd.scrollDisplayLeft();
 //    delay(7000);
     lcd.clear();
@@ -168,10 +169,11 @@ void loop() {
     /* First we get the current temperature from the BMP085 */
     float temperature;
     bmp.getTemperature(&temperature);
+//    temperature = round((((temperature * 9)/5) + 32) *10) / 10;
     temperature = ((temperature * 9)/5) + 32;
     lcd.print("Temperature: ");
     lcd.setCursor(0,1);
-    lcd.print(temperature);
+    lcd.print(temperature, 1);
     lcd.print(" F");
     delay(2000);
     lcd.clear();
@@ -183,7 +185,7 @@ void loop() {
     lcd.print("Altitude:"); 
     lcd.setCursor(0,1);
     lcd.print(bmp.pressureToAltitude(seaLevelPressure,
-                                        event.pressure) /.3048); 
+                                        event.pressure) /.3048, 1); 
     lcd.print(" feet");
     delay(2000);
     lcd.clear();
