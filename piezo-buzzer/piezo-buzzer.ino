@@ -60,6 +60,9 @@ and returns the corresponding frequency from this table:
 For more information, see http://arduino.cc/en/Tutorial/Tone
 */
 
+#include <SparkFun_LED_8x7.h>
+#include <Chaplex.h>
+
 const int buzzerPin = 10;
 
 // We'll set up an array with the notes we want to play
@@ -86,14 +89,47 @@ int beats[] = {1,1,1,1,1,1,4,4,2,1,1,1,1,1,1,4,4,2};
 int tempo = 113;
 
 
+byte led_pins[] = {4, 5, 6, 7, 8, 9, 10, 11}; // Pins for LEDs
+int a;
+int b;
+int state;
+
 void setup() 
 {
+//  Initialize and clear display
+  Plex.init(led_pins);
+  Plex.clear();
+  Plex.display();
+  
+// Seed our random number generator with an analog voltage read
+  randomSeed(analogRead(0));
+  
   pinMode(buzzerPin, OUTPUT);
 }
 
 
 void loop() 
 {
+    for(int k; k<1000; k++){
+      // Choose a random number between 0 and 7 for x coordinate
+    a = random(0, 8);
+    
+    // Choose a random number between 0 and 6 for y coordinate
+    b = random(0, 7);
+    
+    // Flip a coin for the state of the LED
+    state = random(0, 2);
+    
+    // Write to the LED display and wait before doing it again
+    Plex.pixel(a, b, state);
+    Plex.display();
+    delay(10);
+  }
+
+
+
+
+  
   int i, duration;
 
   for (i = 0; i < songLength; i++) // step through the song arrays
