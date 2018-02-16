@@ -15,9 +15,9 @@ LiquidCrystal lcd(11,12,4,5,6,7);
 //then assign it some sort of id?
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 
-int ledStormy = 8;
-int ledRainy = 9;
-int ledChange = 10;
+//int ledStormy = 8;
+//int ledRainy = 9;
+//int ledChange = 10;
 
 
 void displaySensorDetails()
@@ -110,41 +110,49 @@ void loop() {
 //  create logic to write alerts dependent on range of readings
     if (event.pressure < 970) {
 //      lcd.autoscroll();
-      digitalWrite(ledStormy, HIGH);
-      lcd.print("Stormy weather may be coming.");
-      delay(1000);
+//      digitalWrite(ledStormy, HIGH);
+      lcd.print("Stormy weather");
+      lcd.setCursor(0,1);
+      lcd.print("may be coming.");
+      delay(3000);
       lcd.clear();
-      delay(500);
+//      delay(500);
     }
     else if (event.pressure >= 970 && event.pressure < 990) {
 //      lcd.autoscroll();
-      digitalWrite(ledRainy, HIGH);
-      lcd.print("Rainy weather may be coming.");
-      delay(1000);
+//      digitalWrite(ledRainy, HIGH);
+      lcd.print("Rainy weather");
+      lcd.setCursor(0,1);
+      lcd.print("may be coming.");
+      delay(3000);
       lcd.clear();
-      delay(500);
+//      delay(500);
     }
     else if (event.pressure >= 990 && event.pressure < 1010) {
 //      lcd.autoscroll();
-      digitalWrite(ledChange, HIGH);
+//      digitalWrite(ledChange, HIGH);
       lcd.print("Change in");
       lcd.setCursor(0,1);
       lcd.print("weather ahead.");
       delay(3000);
       lcd.clear();
-      delay(500);
+//      delay(500);
     }
     else if (event.pressure >= 1010 && event.pressure < 1030) {
 //      lcd.autoscroll();
-      lcd.print("Fair weather ahead.");
-      delay(1000);
+      lcd.print("Fair weather");
+      lcd.setCursor(0,1);
+      lcd.print("ahead.");
+      delay(3000);
       lcd.clear();
-      delay(500);
+//      delay(500);
     }
     else if (event.pressure >= 1030) {
 //      lcd.autoscroll();
-      lcd.print("Very dry weather ahead.");
-      delay(1000);
+      lcd.print("Very dry");
+      lcd.setCursor(0,1);
+      lcd.print("weather ahead.");
+      delay(3000);
       lcd.clear();
       delay(500);
     } else {
