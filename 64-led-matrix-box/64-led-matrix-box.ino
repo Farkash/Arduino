@@ -43,7 +43,7 @@ const uint16_t colors[] = {
 void setup() {
   matrix.begin();
   matrix.setTextWrap(false);
-  matrix.setBrightness(20);
+  matrix.setBrightness(5);
   matrix.setTextColor(colors[0]);
 
   //for random:
@@ -89,7 +89,7 @@ int pass = 0;
 // random pixel light up
 void loop() {
 
-  for(int count = 0; count < 100; count++){
+  for(int count = 0; count < 1000; count++){
       int x = random(0,8);
       int y = random(0,8);
       int state = random(0,2);
@@ -105,7 +105,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(random(10,50));
+        delay(10);
         break;
       case 1:
         if(state == 0) {
@@ -115,7 +115,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(random(10,50));
+        delay(5);
         break;
       case 2:
         if(state == 0) {
@@ -125,7 +125,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(random(10,50));
+        delay(1);
         break;
      }
      if(pass > 2){
