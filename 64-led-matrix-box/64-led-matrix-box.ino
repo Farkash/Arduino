@@ -84,20 +84,57 @@ void setup() {
 //  delay(10);
 //}
 
+int pass = 0;
+
 // random pixel light up
 void loop() {
-  int x = random(0,8);
-  int y = random(0,8);
-  int state = random(0,2);
-  if(state == 0) {
-    matrix.drawPixel(x,y,matrix.Color(255,0,0));
+
+  for(int count = 0; count < 1000; count++){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+//      int r = random(0,32);
+//      int g = random(0,32);
+//      int b = random(0,32);
+     switch(pass){
+      case 0:
+        if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(255,0,0));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(10);
+        break;
+      case 1:
+        if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(0,255,0));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(10);
+        break;
+      case 2:
+        if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(0,0,255));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(10);
+        break;
+     }
+     if(pass > 2){
+      pass = 0;
+     }
   }
-  else {
-    matrix.drawPixel(x,y,matrix.Color(0,0,0));
-  }
-  
-  matrix.show();
-  delay(50);
+  matrix.clear();
+  pass++;
+
 }
 
 
