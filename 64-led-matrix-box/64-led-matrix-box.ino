@@ -89,7 +89,7 @@ int pass = 0;
 // random pixel light up
 void loop() {
 
-  for(int count = 0; count < 1000; count++){
+  for(int count = 0; count < 100; count++){
       int x = random(0,8);
       int y = random(0,8);
       int state = random(0,2);
@@ -105,7 +105,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(10);
+        delay(random(10,50));
         break;
       case 1:
         if(state == 0) {
@@ -115,7 +115,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(10);
+        delay(random(10,50));
         break;
       case 2:
         if(state == 0) {
@@ -125,7 +125,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(10);
+        delay(random(10,50));
         break;
      }
      if(pass > 2){
