@@ -38,12 +38,18 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,
   NEO_GRB            + NEO_KHZ800);
 
 const uint16_t colors[] = {
-  matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255) };
+  matrix.Color(255, 0, 0), 
+//  matrix.Color(128, 64, 0), 
+  matrix.Color(255, 255, 0), matrix.Color(0, 255, 0), 
+  matrix.Color(0, 255, 255),  matrix.Color(255, 0, 255)
+  };
+
+//  red, orange, yellow, green, teal, dark purple, violet, red, yellow. 
 
 void setup() {
   matrix.begin();
   matrix.setTextWrap(false);
-  matrix.setBrightness(5);
+  matrix.setBrightness(40);
   matrix.setTextColor(colors[0]);
 
   //for random:
@@ -105,7 +111,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(10);
+        delay(30);
         break;
       case 1:
         if(state == 0) {
@@ -125,10 +131,30 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(1);
+        delay(5);
+        break;
+        case 3:
+        if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(0,255,255));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+        break;
+        case 4:
+        if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(255,0,255));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
         break;
      }
-     if(pass > 2){
+     if(pass > 4){
       pass = 0;
      }
   }
@@ -138,6 +164,24 @@ void loop() {
 }
 
 
+
+//int x    = matrix.width();
+////int x = 0;
+////int y = 0;
+//int pass = 0;
+//
+//void loop() {
+//  matrix.fillScreen(0); //ensures no background fill if 0
+//  matrix.setCursor(x, 0);
+//  matrix.print(F("Howdy!:)"));
+//  if(--x < -50) {
+//    x = matrix.width();
+//    if(++pass >= 5) pass = 0;
+//    matrix.setTextColor(colors[pass]);
+//  }
+//  matrix.show();
+//  delay(80 );
+//}
 
 
 
