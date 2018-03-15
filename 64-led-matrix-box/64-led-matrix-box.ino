@@ -55,12 +55,12 @@ void setup() {
   //for random:
   randomSeed(analogRead(0));
 }
-
+//
 //int x    = matrix.width();
-//int x = 0;
+////int x = 0;
 //int y = 0;
 //int pass = 0;
-
+//
 //void loop() {
 //  matrix.fillScreen(0); //ensures no background fill if 0
 //  matrix.setCursor(x, 0);
@@ -94,14 +94,13 @@ int pass = 0;
 
 // random pixel light up
 void loop() {
-
   for(int count = 0; count < 1000; count++){
       int x = random(0,8);
       int y = random(0,8);
       int state = random(0,2);
-//      int r = random(0,32);
-//      int g = random(0,32);
-//      int b = random(0,32);
+      int r = random(0,32);
+      int g = random(0,32);
+      int b = random(0,32);
      switch(pass){
       case 0:
         if(state == 0) {
@@ -111,7 +110,7 @@ void loop() {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
-        delay(30);
+        delay(5);
         break;
       case 1:
         if(state == 0) {
@@ -160,8 +159,23 @@ void loop() {
   }
   matrix.clear();
   pass++;
-
 }
+
+
+//Perpetual red random nightlight mode:
+//void loop() {
+//  int x = random(0,8);
+//  int y = random(0,8);
+//  int state = random(0,2);
+//    if(state == 0) {
+//      matrix.drawPixel(x,y,matrix.Color(255,0,0));
+//    }
+//    else {
+//      matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//    }
+//    matrix.show();
+//    delay(30);
+//}
 
 
 

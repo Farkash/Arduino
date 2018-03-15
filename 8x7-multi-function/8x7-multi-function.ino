@@ -45,7 +45,7 @@ Distributed as-is; no warranty is given.
 #include <SparkFun_LED_8x7.h>
 #include <Chaplex.h>
 
-byte led_pins[] = {4, 5, 6, 7, 8, 9, 10, 11}; // Pins for LEDs
+byte led_pins[] = {5, 6, 7, 8, 9, 10, 11, 12}; // Pins for LEDs
 byte i;
 byte x;
 byte y;
@@ -53,19 +53,9 @@ byte radius;
 int a;
 int b;
 int state;
-const byte sparkfun_logo[] = { 0,0,0,0,1,0,0,0,
-                               0,0,0,0,1,0,1,0,
-                               0,0,1,0,1,1,1,0,
-                               0,0,1,1,1,1,1,0,
-                               0,0,1,1,1,1,0,0,
-                               0,0,1,1,0,0,0,0,
-                               0,0,1,0,0,0,0,0 };
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("-----------------------"));
-  Serial.println(F("SparkFun LED 8x7 - Demo"));
-  Serial.println(F("-----------------------"));
 
   // Initialize and clear display
   Plex.init(led_pins);
@@ -79,20 +69,29 @@ void setup() {
 
 void loop() {
 
-  // Show a bitmap
-//  Serial.println(F("Draw a bitmap"));
-  Plex.clear();
-//  Plex.drawBitmap(sparkfun_logo);
-//  Plex.display(); 
-//  delay(2000);
+  // Explosions!
+  Serial.println(F("Display an animation"));
+  for ( i = 0; i < 15; i++ ) {
+    x = random(0, 8);
+    y = random(0, 7);
+    for ( radius = 0; radius < 12; radius++ ) {
+      Plex.clear();
+      Plex.circle(x, y, radius);
+      Plex.circle(x, y, radius + 1);
+      Plex.display();
+      delay(30);
+    }
+  }
   
+  Plex.clear();
   // Scroll some text
   Serial.println(F("Scroll some text"));
-  Plex.scrollText("DATA SCIENCE & ENGINEERING", 1);
-  delay(15000);
+  Plex.scrollText("Congratulations!!", 1);
+  delay(10000);
 
   Plex.clear();
-
+  Plex.line(0, 0, 7, 0);
+  
   Plex.pixel(6,2,1);
   Plex.display();
   Plex.pixel(4,2,1);
@@ -107,7 +106,7 @@ void loop() {
   Plex.display();
   Plex.pixel(3,4,1);
   Plex.display();
-  delay(500);
+  delay(200);
   Plex.clear();
 
   Plex.pixel(5,2,1);
@@ -124,7 +123,7 @@ void loop() {
   Plex.display();
   Plex.pixel(2,4,1);
   Plex.display();
-  delay(500);
+  delay(200);
   Plex.clear();
   
   Plex.pixel(4,2,1);
@@ -141,7 +140,7 @@ void loop() {
   Plex.display();
   Plex.pixel(1,4,1);
   Plex.display();
-  delay(500);
+  delay(200);
   Plex.clear();
 
   Plex.pixel(3,2,1);
@@ -158,10 +157,10 @@ void loop() {
   Plex.display();
   Plex.pixel(0,4,1);
   Plex.display();
-  delay(500);
+  delay(200);
   Plex.clear();
 
-  for(int k; k<1000; k++){
+  for(int k; k<300; k++){
       // Choose a random number between 0 and 7 for x coordinate
     a = random(0, 8);
     
@@ -177,30 +176,6 @@ void loop() {
     delay(10);
   }
 
-  // Explosions!
-  Serial.println(F("Display an animation"));
-  for ( i = 0; i < 15; i++ ) {
-    x = random(0, 8);
-    y = random(0, 7);
-    for ( radius = 0; radius < 12; radius++ ) {
-      Plex.clear();
-      Plex.circle(x, y, radius);
-      Plex.circle(x, y, radius + 1);
-      Plex.display();
-      delay(30);
-    }
-  }
-
-  // Draw a line (x0, x0, y1, y1)
-  Plex.clear();
-  Plex.line(0, 0, 7, 0);
-  Plex.display();
-  delay(200);
-
-  Plex.clear();
-  Plex.line(0, 0, 7, 6);
-  Plex.display();
-  delay(200);
 
   Plex.clear();
   Plex.line(0, 0, 0, 6);
