@@ -5,17 +5,150 @@
   #include <avr/power.h>
 #endif
 
-#define PIN 2
-byte led_pins[] = {5, 6, 7, 8, 9, 10, 11, 12}; // Pins for LEDs
+
+// to do:
+// how to multitask arduino, so not dependent on other processes completing first. 
+// https://learn.adafruit.com/multi-tasking-the-arduino-part-1/overview
+// Add sound with piezo?
+// Use switch to cycle through songs/turn sound off
+// Use switch to power off board
+
+byte led_pins[] = {2, 3, 4, 5, 6, 7, 8, 9}; // Pins for LEDs
+const int buzz_pin = 10;
+#define PIN 11
 byte i;
 byte x;
-byte y;
+byte y;p
 byte radius;
 int a;
 int b;
 int state;
+const int songspeed = 1.5; //Change to 2 for a slower version of the song, the bigger the number the slower the song
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(16, PIN, NEO_GRB + NEO_KHZ800);
+#define NOTE_C4  262   //Defining note frequency
+#define NOTE_D4  294
+#define NOTE_E4  330
+#define NOTE_F4  349
+#define NOTE_G4  392
+#define NOTE_A4  440
+#define NOTE_B4  494
+#define NOTE_C5  523
+#define NOTE_D5  587
+#define NOTE_E5  659
+#define NOTE_F5  698
+#define NOTE_G5  784
+#define NOTE_A5  880
+#define NOTE_B5  988
+
+int notes[] = {       //Note of the song, 0 is a rest/pulse
+   NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, 
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+   NOTE_A4, NOTE_G4, NOTE_A4, 0,
+   
+   NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, 
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+   NOTE_A4, NOTE_G4, NOTE_A4, 0,
+   
+   NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, 
+   NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0, 
+   NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0,
+   NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0,
+   
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_D5, NOTE_E5, NOTE_A4, 0, 
+   NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0,
+   NOTE_C5, NOTE_A4, NOTE_B4, 0,
+
+   NOTE_A4, NOTE_A4, 
+   //Repeat of first part
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+   NOTE_A4, NOTE_G4, NOTE_A4, 0,
+
+   NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, 
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+   NOTE_A4, NOTE_G4, NOTE_A4, 0,
+   
+   NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0, 
+   NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0, 
+   NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0,
+   NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0,
+   
+   NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0, 
+   NOTE_D5, NOTE_E5, NOTE_A4, 0, 
+   NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0,
+   NOTE_C5, NOTE_A4, NOTE_B4, 0,
+   //End of Repeat
+
+   NOTE_E5, 0, 0, NOTE_F5, 0, 0,
+   NOTE_E5, NOTE_E5, 0, NOTE_G5, 0, NOTE_E5, NOTE_D5, 0, 0,
+   NOTE_D5, 0, 0, NOTE_C5, 0, 0,
+   NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4,
+
+   NOTE_E5, 0, 0, NOTE_F5, 0, 0,
+   NOTE_E5, NOTE_E5, 0, NOTE_G5, 0, NOTE_E5, NOTE_D5, 0, 0,
+   NOTE_D5, 0, 0, NOTE_C5, 0, 0,
+   NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4
+};
+
+int duration[] = {         //duration of each note (in ms) Quarter Note is set to 250 ms
+  125, 125, 250, 125, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 375, 125, 
+  
+  125, 125, 250, 125, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 375, 125, 
+  
+  125, 125, 250, 125, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 125, 250, 125,
+
+  125, 125, 250, 125, 125, 
+  250, 125, 250, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 375, 375,
+
+  250, 125,
+  //Rpeat of First Part
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 375, 125, 
+  
+  125, 125, 250, 125, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 375, 125, 
+  
+  125, 125, 250, 125, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 250, 125, 125,
+  125, 125, 125, 250, 125,
+
+  125, 125, 250, 125, 125, 
+  250, 125, 250, 125, 
+  125, 125, 250, 125, 125,
+  125, 125, 375, 375,
+  //End of Repeat
+  
+  250, 125, 375, 250, 125, 375,
+  125, 125, 125, 125, 125, 125, 125, 125, 375,
+  250, 125, 375, 250, 125, 375,
+  125, 125, 125, 125, 125, 500,
+
+  250, 125, 375, 250, 125, 375,
+  125, 125, 125, 125, 125, 125, 125, 125, 375,
+  250, 125, 375, 250, 125, 375,
+  125, 125, 125, 125, 125, 500
+};
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(24, PIN, NEO_GRB + NEO_KHZ800);
 
 
 void setup() {
@@ -31,6 +164,14 @@ void setup() {
   
   // Seed our random number generator with an analog voltage read
   randomSeed(analogRead(0));
+
+
+ for (int i=0;i<203;i++){              //203 is the total number of music notes in the song
+  int wait = duration[i] * songspeed;
+  tone(buzzer,notes[i],wait);          //tone(pin,frequency,duration)
+  delay(wait);}                        //delay is used so it doesn't go to the next loop before tone is finished playing
+  //You can click reset on Arduino to replay the song
+  
 
 }
 
@@ -62,9 +203,9 @@ void loop() {
 //    }
 //  }
   
-  colorWipe(strip.Color(30, 30, 30), 50); // white
-//  colorWipe(strip.Color(0, 255, 0), 50); // Green
-//  colorWipe(strip.Color(255, 0, 0), 50); // Red
+
+  colorWipe(strip.Color(0, 255, 0), 50); // Green
+  colorWipe(strip.Color(255, 0, 0), 50); // Red
 //  rainbow(20);
 //  theaterChaseRainbow(10);
   
@@ -82,7 +223,7 @@ void loop() {
 //  }
   
   Plex.clear();
-  Plex.scrollText("Great work! Thank you!", 1);
+  Plex.scrollText("Live long and prosper", 1);
   delay(11000);
 //  rainbowCycle(2);
 //  rainbowCycle(2);

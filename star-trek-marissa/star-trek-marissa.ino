@@ -1,9 +1,9 @@
+// Star Trek Spock Bobble Head Effects for Marissa
+// 9/14/2018
+
 #include <SparkFun_LED_8x7.h>
 #include <Chaplex.h>
 #include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-  #include <avr/power.h>
-#endif
 
 #define PIN 2
 byte led_pins[] = {5, 6, 7, 8, 9, 10, 11, 12}; // Pins for LEDs
@@ -35,32 +35,6 @@ void setup() {
 }
 
 void loop() {
-
-//  Plex.clear();
-//  Plex.pixel(0,1,1);
-//  Plex.pixel(1,0,1);
-//  Plex.pixel(1,2,1);
-//  Plex.pixel(2,1,1);
-//  Plex.pixel(6,0,1);
-//  Plex.pixel(5,1,1);
-//  Plex.pixel(7,1,1);
-//  Plex.pixel(6,2,1);
-//  Plex.pixel(0,4,1);
-//  Plex.pixel(1,5,1);
-//  Plex.pixel(2,6,1);
-//  Plex.pixel(3,6,1);
-//  Plex.pixel(4,6,1);
-//  Plex.pixel(5,6,1);
-//  Plex.pixel(6,5,1);
-//  Plex.pixel(7,4,1);
-//  Plex.display();
-
-//  for(int i = 0; 1 < 256; i++){
-//    for(int j = 0; j < 16; j++){
-//      strip.setPixelColor(j, strip.Color(i, 0, 255-i));
-//      strip.show();
-//    }
-//  }
   
   colorWipe(strip.Color(30, 30, 30), 50); // white
 //  colorWipe(strip.Color(0, 255, 0), 50); // Green
@@ -68,44 +42,13 @@ void loop() {
 //  rainbow(20);
 //  theaterChaseRainbow(10);
   
-  // Explosions
-//  for (i = 0; i < 5; i++) {
-//    x = random(0, 8);
-//    y = random(0, 7);
-//    for ( radius = 0; radius < 12; radius++ ) {
-//      Plex.clear();
-//      Plex.circle(x, y, radius);
-//      Plex.circle(x, y, radius + 1);
-//      Plex.display();
-//      delay(30);
-//    }
-//  }
-  
   Plex.clear();
   Plex.scrollText("Great work! Thank you!", 1);
+  // Why does this need a delay????? This kills multi-tasking!
   delay(11000);
 //  rainbowCycle(2);
 //  rainbowCycle(2);
 //  rainbowCycle(2);
-
-//  Plex.clear();
-//  Plex.pixel(0,1,1);
-//  Plex.pixel(1,0,1);
-//  Plex.pixel(1,2,1);
-//  Plex.pixel(2,1,1);
-//  Plex.pixel(6,0,1);
-//  Plex.pixel(5,1,1);
-//  Plex.pixel(7,1,1);
-//  Plex.pixel(6,2,1);
-//  Plex.pixel(0,4,1);
-//  Plex.pixel(1,5,1);
-//  Plex.pixel(2,6,1);
-//  Plex.pixel(3,6,1);
-//  Plex.pixel(4,6,1);
-//  Plex.pixel(5,6,1);
-//  Plex.pixel(6,5,1);
-//  Plex.pixel(7,4,1);
-//  Plex.display();
 
 //  theaterChase(strip.Color(0, 127, 0), 50); // Green
 //  colorWipe(strip.Color(0, 0, 255), 20);

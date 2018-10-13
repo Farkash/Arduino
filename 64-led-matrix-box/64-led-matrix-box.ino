@@ -90,20 +90,85 @@ void setup() {
 //  delay(10);
 //}
 
-int pass = 0;
+//int pass = 0;
+//
+//// random pixel light up
+//void loop() {
+//  for(int count = 0; count < 1000; count++){
+//      int x = random(0,8);
+//      int y = random(0,8);
+//      int state = random(0,2);
+////      int r = random(0,32);
+////      int g = random(0,32);
+////      int b = random(0,32);
+//     switch(pass){
+//      case 0:
+//        if(state == 0) {
+//          matrix.drawPixel(x,y,matrix.Color(255,0,0));
+//        }
+//        else {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//        }
+//        matrix.show();
+//        delay(5);
+//        break;
+//      case 1:
+//        if(state == 0) {
+//          matrix.drawPixel(x,y,matrix.Color(0,255,0));
+//        }
+//        else {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//        }
+//        matrix.show();
+//        delay(5);
+//        break;
+//      case 2:
+//        if(state == 0) {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,255));
+//        }
+//        else {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//        }
+//        matrix.show();
+//        delay(5);
+//        break;
+//      case 3:
+//        if(state == 0) {
+//          matrix.drawPixel(x,y,matrix.Color(0,255,255));
+//        }
+//        else {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//        }
+//        matrix.show();
+//        delay(5);
+//        break;
+//      case 4:
+//        if(state == 0) {
+//          matrix.drawPixel(x,y,matrix.Color(255,0,255));
+//        }
+//        else {
+//          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+//        }
+//        matrix.show();
+//        delay(5);
+//        break;
+//     }
+//     if(pass > 4){
+//      pass = 0;
+//     }
+//  }
+//  matrix.clear();
+//  pass++;
+//}
 
-// random pixel light up
+// Constant color transition random
 void loop() {
-  for(int count = 0; count < 1000; count++){
+  // 1000 red
+  for(int i = 0; i < 1000; i++){
       int x = random(0,8);
       int y = random(0,8);
       int state = random(0,2);
-      int r = random(0,32);
-      int g = random(0,32);
-      int b = random(0,32);
-     switch(pass){
-      case 0:
-        if(state == 0) {
+      if(state == 0) {
           matrix.drawPixel(x,y,matrix.Color(255,0,0));
         }
         else {
@@ -111,9 +176,30 @@ void loop() {
         }
         matrix.show();
         delay(5);
-        break;
-      case 1:
-        if(state == 0) {
+  }
+
+  // transition from red-green
+  for(int i = 0; i < 256;){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(255-i,i,0));
+          i++;
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+  }
+
+  // 1000 green
+  for(int i = 0; i < 1000; i++){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
           matrix.drawPixel(x,y,matrix.Color(0,255,0));
         }
         else {
@@ -121,9 +207,30 @@ void loop() {
         }
         matrix.show();
         delay(5);
-        break;
-      case 2:
-        if(state == 0) {
+  }
+
+  // transition from green-blue 
+  for(int i = 0; i < 256;){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(0,255-i,i));
+          i++;
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+  }
+
+  // 1000 blue
+  for(int i = 0; i < 1000; i++){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
           matrix.drawPixel(x,y,matrix.Color(0,0,255));
         }
         else {
@@ -131,19 +238,30 @@ void loop() {
         }
         matrix.show();
         delay(5);
-        break;
-        case 3:
-        if(state == 0) {
-          matrix.drawPixel(x,y,matrix.Color(0,255,255));
+  }
+
+  // transition from blue-purple
+  for(int i = 0; i < 256;){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(i,0,255));
+          i++;
         }
         else {
           matrix.drawPixel(x,y,matrix.Color(0,0,0));
         }
         matrix.show();
         delay(5);
-        break;
-        case 4:
-        if(state == 0) {
+  }
+
+  // 1000 purple
+  for(int i = 0; i < 1000; i++){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
           matrix.drawPixel(x,y,matrix.Color(255,0,255));
         }
         else {
@@ -151,15 +269,62 @@ void loop() {
         }
         matrix.show();
         delay(5);
-        break;
-     }
-     if(pass > 4){
-      pass = 0;
-     }
   }
-  matrix.clear();
-  pass++;
+
+  //transition from purple-teal
+  for(int i = 0; i < 256;){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(255-i,i,255));
+          i++;
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+  }
+
+// 1000 teal
+  for(int i = 0; i < 1000; i++){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(0,255,255));
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+  }
+
+  //transition from teal back to red
+  for(int i = 0; i < 256;){
+      int x = random(0,8);
+      int y = random(0,8);
+      int state = random(0,2);
+      if(state == 0) {
+          matrix.drawPixel(x,y,matrix.Color(i,255-i,255-i));
+          i++;
+        }
+        else {
+          matrix.drawPixel(x,y,matrix.Color(0,0,0));
+        }
+        matrix.show();
+        delay(5);
+  }
+
 }
+
+
+
+
+
+      
 
 
 //Perpetual red random nightlight mode:
