@@ -1,69 +1,56 @@
 // Maegan's First Box
 // 24-LED NeoPixel ring, piezo buzzer, Adafruit 9x16 Charlieplexed LED Matrix
 
-// TODO:
-// Redesign board with capacitor and resistors and switch.
-// Get multi-tasking working with millis() function instead of the delay() function
-// https://learn.adafruit.com/multi-tasking-the-arduino-part-1/overview
-// Get mode selector set up with momentary switch button. Look at example sketch, Button Cycler
-
-
-// Import library for Neopixel ring:
 #include <Adafruit_NeoPixel.h>
-// Libraries for matrix:
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
-// None needed for buzzer
-
-// Buzzer declarations:
-const int buzzer = 5;
+const int buzzerPin = 5;
 const int songspeed = 1.5; 
+//#define E3  165
+//#define E4  330
+//#define E5  659
+//#define E6  1319
+//#define E7  2637
 
-//*****************************************
-#define E3  165
 #define E4  330
+#define A4  440
+#define C5  523
+#define B4  494
+#define A4  440
 #define E5  659
-#define E6  1319
-#define E7  2637
+#define D5  587
+#define B4  494
 
-//*****************************************
 int notes[] = {
-  E3, E4, E5, E6, E7
-  
+  E4, A4, C5, B4, 
+  A4, E5, D5, B4
 };
-
-//*****************************************
 int duration[] = {         //duration of each note (in ms) Quarter Note is set to 250 ms
-  500, 500, 500, 500, 500, 
+  350, 530, 210, 350,
+  700, 350, 1100, 1050
 };
 
-
-// Instantiate a neopixel object using the constructor:
-// Parameter 1 = number of pixels in ring
-// Parameter 2 = pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_RGB     Pixels are wired for RGB bitstream
-//   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
-//   NEO_KHZ400  400 KHz bitstream (e.g. FLORA pixels)
-//   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip), correct for neopixel stick
 #define NP_COUNT 24   // Amount of neopixels in ring
 #define NP_PIN    6   // Digital IO pin connected to the NeoPixels
-int ringCounter = 0;
 Adafruit_NeoPixel ring = Adafruit_NeoPixel(NP_COUNT, NP_PIN, NEO_GRB + NEO_KHZ800);
 
-unsigned long prevMillisRing = 0;        // will store last time LED was updated
+unsigned long prevMillisRing = 0;
+unsigned long prevMillisMatrix = 0;
+unsigned long prevMillisBuzz = 0;
+
 
 // constants won't change:
-const long ringInterval = 20;  
+int ringCounter = 0;
+const long ringInterval = 500;  
+const long matrixInterval = 10;
 
 
 // instantiate an LED matrix object using the constructor:
-//Adafruit_IS31FL3731 matrix = Adafruit_IS31FL3731();
-
-
-// The lookup table to make the matrix brightness changes be more visible
-uint8_t sweep[] = {1, 2, 3, 4, 6, 8, 10, 15, 20, 30, 40, 60, 60, 40, 30, 20, 15, 10, 8, 6, 4, 3, 2, 1};
+Adafruit_IS31FL3731 matrix = Adafruit_IS31FL3731();
+int x = 0;
+int y = 0;
+int noteIndex = 0;
 
 void setup() {
   // Setup print to console for debugging:
@@ -72,25 +59,25 @@ void setup() {
   ring.begin();
   ring.show(); // Initialize all pixels to 'off'
 
-//  if (! matrix.begin()) {
-//    Serial.println("IS31 not found");
-//    while (1);
-//  }
-//  Serial.println("IS31 found!");
+  if (! matrix.begin()) {
+    Serial.println("IS31 not found");
+    while (1);
+  }
+  Serial.println("IS31 found!");
+
+//  delay(1000);
  
 }
 
 void loop() {
 
+  // Ring
   unsigned long currMillisRing = millis();
-
-  Serial.println("currMillisRing:");
-  Serial.println(currMillisRing);
-
   if (currMillisRing - prevMillisRing >= ringInterval) {
     prevMillisRing = currMillisRing;
     Serial.println("ringInterval exceeded, lighting LED");
     ring.setPixelColor(ringCounter, 50, 0, 0);
+    ring.setPixelColor(ringCounter-1, 0, 0, 0);
     ring.show();
     // increment the counter:
     if (ringCounter < NP_COUNT) {
@@ -98,49 +85,53 @@ void loop() {
     } 
     else {
       ringCounter = 0;
-      for (int i = 0; i < ring.numPixels(); i++) {
-        ring.setPixelColor(i, 0, 0, 0);
-      }
+        // use this loop if you want to clear all LEDs at once:
+//      for (int i = 0; i < ring.numPixels(); i++) {
+//        ring.setPixelColor(i, 0, 0, 0);
+//      }
     }
     
   }
 
-//  colorWipe(ring.Color(50, 0, 0), 10); // Red
-//  colorWipe(ring.Color(50, 0, 0)); // Red
-//  colorWipe(ring.Color(0, 32, 0), 10);
-//  colorWipe(ring.Color(0, 32, 0));
+  // Matrix
+  unsigned long currMillisMatrix = millis();
+  if (currMillisMatrix - prevMillisMatrix >= matrixInterval) {
+    prevMillisMatrix = currMillisMatrix;
 
-  // Buzzer repeat:
-//  for (int i=0;i<5;i++){              //203 is the total number of music notes in the song
-//  int wait = duration[i] * songspeed;
-//  tone(buzzer,notes[i],wait);          //tone(pin,frequency,duration)
-//  delay(wait);}                        //delay is used so it doesn't go to the next loop before tone is finished playing
- 
+    if (x < 16) {
+      matrix.drawPixel(x, y, 100);
+      matrix.drawPixel(x-1, y, 0);
+      x++;
+    }
+    else {
+      x = 0;
+      if (y < 9) {
+        y++;
+      }
+      else {
+        y = 0;
+      }
+      matrix.drawPixel(x, y, 100);
+      matrix.drawPixel(x-1, y, 0);
+    }
+    
+  }
 
-  //Matrix code:
-  // animate over all the pixels, and set the brightness from the sweep table
-//  for (uint8_t incr = 0; incr < 24; incr++)
-//    for (uint8_t x = 0; x < 16; x++)
-//      for (uint8_t y = 0; y < 9; y++)
-//        matrix.drawPixel(x, y, sweep[(x+y+incr)%24]);
-//  delay(20);
-//  
+  // Buzzer
+  unsigned long currMillisBuzz = millis();
+  tone(buzzerPin, notes[noteIndex]);
+  if(currMillisBuzz - prevMillisBuzz >= duration[noteIndex]) {
+    prevMillisBuzz = currMillisBuzz;
+    if(noteIndex < 8) {
+      noteIndex++;
+      tone(buzzerPin, notes[noteIndex]);
+    }
+    else {
+      noteIndex = 0;
+      tone(buzzerPin, notes[noteIndex]);
+    }
+    
+  }
+
 }
-
-
-// FUNCTION DEFINITIONS:
-
-// For ring:
-
-// Fill the dots one after the other with a color
-//void colorWipe(uint32_t c, uint8_t wait) {
-//void colorWipe(uint32_t c) {
-//  for(uint16_t i=0; i < ring.numPixels(); i++) {
-//    ring.setPixelColor(i, c);
-//    ring.show();
-//    delay(wait);
-//  }
-//}
-
-
 
