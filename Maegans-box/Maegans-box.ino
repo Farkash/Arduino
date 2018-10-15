@@ -6,12 +6,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
 const int buzzerPin = 5;
-const int songspeed = 1.5; 
-//#define E3  165
-//#define E4  330
-//#define E5  659
-//#define E6  1319
-//#define E7  2637
 
 #define E4  330
 #define A4  440
@@ -26,9 +20,12 @@ int notes[] = {
   E4, A4, C5, B4, 
   A4, E5, D5, B4
 };
-int duration[] = {         //duration of each note (in ms) Quarter Note is set to 250 ms
-  350, 530, 210, 350,
-  700, 350, 1100, 1050
+
+const int noteDuration = 100;
+
+int pauseDuration[] = {         //duration of each note (in ms) Quarter Note is set to 250 ms
+  250, 430, 110, 250,
+  600, 250, 1000, 950
 };
 
 #define NP_COUNT 24   // Amount of neopixels in ring
@@ -37,11 +34,11 @@ Adafruit_NeoPixel ring = Adafruit_NeoPixel(NP_COUNT, NP_PIN, NEO_GRB + NEO_KHZ80
 
 unsigned long prevMillisRing = 0;
 unsigned long prevMillisMatrix = 0;
-unsigned long prevMillisBuzz = 0;
-
+unsigned long stamp = 0;
+int buzzState = 0;
 
 // constants won't change:
-int ringCounter = 0;
+//int ringCounter = 0;
 const long ringInterval = 500;  
 const long matrixInterval = 10;
 
@@ -65,7 +62,6 @@ void setup() {
   }
   Serial.println("IS31 found!");
 
-//  delay(1000);
  
 }
 
@@ -76,20 +72,22 @@ void loop() {
   if (currMillisRing - prevMillisRing >= ringInterval) {
     prevMillisRing = currMillisRing;
     Serial.println("ringInterval exceeded, lighting LED");
-    ring.setPixelColor(ringCounter, 50, 0, 0);
-    ring.setPixelColor(ringCounter-1, 0, 0, 0);
-    ring.show();
+    for (int a = 0; a < 24; a++) {
+//      ring.setPixelColor(ringCounter, 50, 0, 0);
+      ring.setPixelColor(a, 0, 20, 20);
+      ring.show();
+    }
     // increment the counter:
-    if (ringCounter < NP_COUNT) {
-      ringCounter++;
-    } 
-    else {
-      ringCounter = 0;
+//    if (ringCounter < NP_COUNT) {
+//      ringCounter++;
+//    } 
+//    else {
+//      ringCounter = 0;
         // use this loop if you want to clear all LEDs at once:
 //      for (int i = 0; i < ring.numPixels(); i++) {
 //        ring.setPixelColor(i, 0, 0, 0);
 //      }
-    }
+//    }
     
   }
 
@@ -118,20 +116,32 @@ void loop() {
   }
 
   // Buzzer
-  unsigned long currMillisBuzz = millis();
-  tone(buzzerPin, notes[noteIndex]);
-  if(currMillisBuzz - prevMillisBuzz >= duration[noteIndex]) {
-    prevMillisBuzz = currMillisBuzz;
-    if(noteIndex < 8) {
+  unsigned long buzzClock = millis();
+
+  if((buzzState == 0) && (buzzClock - stamp >= pauseDuration[noteIndex])) 
+  {
+    tone(buzzerPin, notes[noteIndex]);
+    buzzState = 1;
+    stamp = buzzClock;
+    if(noteIndex < 8) 
+    {
       noteIndex++;
-      tone(buzzerPin, notes[noteIndex]);
     }
-    else {
+    else 
+    {
       noteIndex = 0;
-      tone(buzzerPin, notes[noteIndex]);
     }
     
   }
+
+  if((buzzState == 1) && (buzzClock - stamp >= noteDuration))
+  { 
+    noTone(buzzerPin);
+    buzzState = 0;
+    stamp = buzzClock;
+  }
+
+
 
 }
 
