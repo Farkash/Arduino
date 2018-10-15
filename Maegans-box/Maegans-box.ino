@@ -6,12 +6,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
 const int buzzerPin = 5;
-const float tempo = 1; 
-//#define E3  165
-//#define E4  330
-//#define E5  659
-//#define E6  1319
-//#define E7  2637
+const float tempo = 0.8; 
 
 #define E4  330
 #define A4  440
@@ -39,12 +34,10 @@ unsigned long prevMillisRing = 0;
 unsigned long prevMillisMatrix = 0;
 unsigned long prevMillisBuzz = 0;
 
-
 // constants won't change:
 int ringCounter = 0;
 const long ringInterval = 500;  
-const long matrixInterval = 10;
-
+const long matrixInterval = 200;
 
 // instantiate an LED matrix object using the constructor:
 Adafruit_IS31FL3731 matrix = Adafruit_IS31FL3731();
@@ -73,11 +66,18 @@ void loop() {
 
   // Ring
   unsigned long currMillisRing = millis();
+
+  // just turn all the ring colors on to a teal for now:
+  for(int a = 0; a < 24; a++)
+  {
+    ring.setPixelColor(a, 50, 50, 0);
+  }
+  
   if (currMillisRing - prevMillisRing >= ringInterval) {
     prevMillisRing = currMillisRing;
     Serial.println("ringInterval exceeded, lighting LED");
-    ring.setPixelColor(ringCounter, 50, 0, 0);
-    ring.setPixelColor(ringCounter-1, 0, 0, 0);
+    ring.setPixelColor(ringCounter, 0, 50, 50);
+    ring.setPixelColor(ringCounter-1, 50, 50, 0);
     ring.show();
     // increment the counter:
     if (ringCounter < NP_COUNT) {
@@ -99,19 +99,19 @@ void loop() {
     prevMillisMatrix = currMillisMatrix;
 
     if (x < 16) {
-      matrix.drawPixel(x, y, 100);
+      matrix.drawPixel(x, y, 50);
       matrix.drawPixel(x-1, y, 0);
       x++;
     }
     else {
       x = 0;
-      if (y < 9) {
+      if (y < 8) {
         y++;
       }
       else {
         y = 0;
       }
-      matrix.drawPixel(x, y, 100);
+      matrix.drawPixel(x, y, 50);
       matrix.drawPixel(x-1, y, 0);
     }
     
@@ -119,18 +119,19 @@ void loop() {
 
   // Buzzer
   unsigned long currMillisBuzz = millis();
-  tone(buzzerPin, notes[noteIndex]);
-  if(currMillisBuzz - prevMillisBuzz >= duration[noteIndex] * tempo) {
-    prevMillisBuzz = currMillisBuzz;
-    if(noteIndex < 8) {
-      noteIndex++;
-      tone(buzzerPin, notes[noteIndex]);
-    }
-    else {
-      noteIndex = 0;
-      tone(buzzerPin, notes[noteIndex]);
-    }
-    
-  }
 
+  if(noteIndex < 8)
+  {
+  tone(buzzerPin, notes[noteIndex]);
+  if(currMillisBuzz - prevMillisBuzz >= duration[noteIndex] * tempo) 
+  {
+  prevMillisBuzz = currMillisBuzz;
+  noteIndex++;
+  tone(buzzerPin, notes[noteIndex]);
+  }  
+  }
+  else
+  {
+    noTone(buzzerPin);
+  }
 }
