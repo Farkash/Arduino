@@ -27,7 +27,7 @@ int duration[] = {         //duration of each note (in ms) Quarter Note is set t
 };
 
 #define NP_COUNT 24   // Amount of neopixels in ring
-#define NP_PIN    6   // Digital IO pin connected to the NeoPixels
+#define NP_PIN    2   // Digital IO pin connected to the NeoPixels
 Adafruit_NeoPixel ring = Adafruit_NeoPixel(NP_COUNT, NP_PIN, NEO_GRB + NEO_KHZ800);
 
 unsigned long prevMillisRing = 0;
