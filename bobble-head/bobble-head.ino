@@ -38,6 +38,14 @@ const int rainbowInterval = 20;
 //int y = 0;
 int noteIndex = 0;
 
+unsigned int ringRandomActive = 1;
+unsigned long ringRandomLast = 0;
+unsigned int ringRandomInterval = 10;
+unsigned int ringRandomIndex = 0;
+uint32_t rColor;
+uint32_t gColor;
+uint32_t bColor;
+
 int E4 = 330;
 int C5 = 523;
 int B4 = 494;
@@ -94,10 +102,10 @@ void loop() {
 
 unsigned long matrixClock = millis();
 // scroll text
-if (matrixClock < 500)
-{
-  Plex.scrollText("Hello Marissa! Live long and prosper!  Your friend,   -Steve   :)", 1, true);
-}
+//if (matrixClock < 500)
+//{
+//  Plex.scrollText("Hello Marissa! Live long and prosper!  Your friend,   -Steve   :)", 1, true);
+//}
 
 // Randomly light pixels
 // Choose a random number between 0 and 7 for x coordinate
@@ -151,34 +159,34 @@ else
 unsigned long ringClock = millis();
 
 // Ring color wipe
-if(ringWipeActive == 1 && ringClock - ringLast > ringInterval)
-{
-  ring.setPixelColor(ringIndex, ringColors[ringColorIndex]);
-//  ring.setPixelColor(ringIndex-1, 0, 0, 0);
-  ringLast = ringClock;
-  ring.show();
-  if(ringIndex < 23)
-  {
-    ringIndex++;
-  }
-  else
-  {
-    ringIndex = 0;
-    if(ringColorIndex < 30)
-    {
-      ringColorIndex++;
-    }
-    else 
-    {
-//      for(int i = 0; i < 24; i++)
-//      {
-//        ring.setPixelColor(i, 0, 0, 0);
-//        ring.show();
-//      }
-      ringWipeActive = 0;
-    }
-  } 
-}
+//if(ringWipeActive == 1 && ringClock - ringLast > ringInterval)
+//{
+//  ring.setPixelColor(ringIndex, ringColors[ringColorIndex]);
+////  ring.setPixelColor(ringIndex-1, 0, 0, 0);
+//  ringLast = ringClock;
+//  ring.show();
+//  if(ringIndex < 23)
+//  {
+//    ringIndex++;
+//  }
+//  else
+//  {
+//    ringIndex = 0;
+//    if(ringColorIndex < 30)
+//    {
+//      ringColorIndex++;
+//    }
+//    else 
+//    {
+////      for(int i = 0; i < 24; i++)
+////      {
+////        ring.setPixelColor(i, 0, 0, 0);
+////        ring.show();
+////      }
+//      ringWipeActive = 0;
+//    }
+//  } 
+//}
 
 
 // ring rainbow
@@ -239,8 +247,65 @@ if(ringWipeActive == 1 && ringClock - ringLast > ringInterval)
 //}
 
 
-// ring random
 
+
+int c = random(0, 23);
+int r = random(0, 3);
+switch(r){
+  case 0: rColor = ring.Color(100, 0, 0);
+          break;
+  case 1: rColor = ring.Color(0, 100, 0);
+          break;
+  case 2: rColor = ring.Color(0, 0, 100);
+          break;
+  case 3: rColor = ring.Color(100, 0, 100);
+          break;
+  case 4: rColor = ring.Color(0, 100, 100);
+          break;
+  case 5: rColor = ring.Color(100, 100, 0);
+          break;
+}
+int g = random(0, 3);
+switch(g){
+  case 0: gColor = ring.Color(100, 0, 0);
+          break;
+  case 1: gColor = ring.Color(0, 100, 0);
+          break;
+  case 2: gColor = ring.Color(0, 0, 100);
+          break;
+  case 3: gColor = ring.Color(100, 0, 100);
+          break;
+  case 4: gColor = ring.Color(0, 100, 100);
+          break;
+  case 5: gColor = ring.Color(100, 100, 0);
+          break;
+}
+int b = random(0, 3);
+switch(b){
+  case 0: bColor = ring.Color(100, 0, 0);
+          break;
+  case 1: bColor = ring.Color(0, 100, 0);
+          break;
+  case 2: bColor = ring.Color(0, 0, 100);
+          break;
+  case 3: bColor = ring.Color(100, 0, 100);
+          break;
+  case 4: bColor = ring.Color(0, 100, 100);
+          break;
+  case 5: bColor = ring.Color(100, 100, 0);
+          break;
+}
+
+// ring random
+if(ringRandomActive == 1 && ringClock - ringRandomLast > ringRandomInterval)
+{
+  ring.setPixelColor(c, rColor, gColor, bColor);
+  ringRandomLast = ringClock;
+  ring.show();
+  {
+      ringWipeActive = 0;
+  } 
+}
 
 
 
