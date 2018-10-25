@@ -1,3 +1,12 @@
+// EXISING PROBLEMS:
+// The functions are only called if the state of the switch changes.
+// Need to get it to call every time the main loop runs. 
+// The switch should only change the function that it calls. 
+
+// The loop only calls startShow() when the button pin reads LOW (switch is
+// pressed). I need it to call startShow() every time the loop runs,
+// and the button press only increments the showType.
+
 // Iron Man Arc Reactor
 #include <Adafruit_NeoPixel.h>
 #define BUTTON_PIN   2
@@ -8,9 +17,16 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(neoPixelCount, neoPixelPin, NEO_GRB 
 
 bool oldState = HIGH;
 int showType = 0;
+unsigned long colorWipeLast = 0;
+int i = 0;
+unsigned long colorFadeLast = 0;
+int j = 0;
+int colorFadeTop = 0;
+uint32_t c;
 
 void setup() 
 {
+  Serial.begin(9600);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
@@ -20,40 +36,48 @@ void loop()
 {
   // Get current button state.
   bool newState = digitalRead(BUTTON_PIN);
+  Serial.println(newState);
 
   // Check if state changed from high to low (button press).
-  if (newState == LOW && oldState == HIGH) {
+  if (newState == LOW && oldState == HIGH) 
+  {
     // Short delay to debounce button.
     delay(20);
     // Check if button is still low after debounce.
     newState = digitalRead(BUTTON_PIN);
-    if (newState == LOW) {
+    if (newState == LOW) 
+    {
       showType++;
       if (showType > 6)
         showType=0;
-      startShow(showType);
+//      startShow(showType);
+      Serial.print("newState:");
+      Serial.println(newState);
+      Serial.print("showType:");
+      Serial.println(showType);
     }
   }
-
   // Set the last button state to the old state.
   oldState = newState;
+  
+  startShow(showType);
 }
 
 void startShow(int i) {
   switch(i){
-    case 0: colorWipe(strip.Color(0, 0, 0), 50);    // Black/off
+    case 0: colorWipe(strip.Color(0, 0, 0), 20);    // Black/off
             break;
-    case 1: colorFadeRed(1);  // Red
+    case 1: colorFade(0,10);  // Red
             break;
-    case 2: colorFadeRed(1);
+    case 2: colorFade(2,10);  // blue
             break;
-    case 3: colorWipe(strip.Color(255, 0, 0), 50);
+    case 3: colorWipe(strip.Color(255, 0, 0), 20);
             break;
-    case 4: colorWipe(strip.Color(0, 255, 0), 50);
+    case 4: colorWipe(strip.Color(0, 255, 0), 20);
             break;
-    case 5: colorWipe(strip.Color(0, 0, 255), 50);
+    case 5: colorWipe(strip.Color(0, 0, 255), 20);
             break;
-    case 6: colorWipe(strip.Color(255, 255, 0), 50);
+    case 6: colorWipe(strip.Color(255, 255, 0), 20);
             break;
 //    case 7: rainbow(20);
 //            break;
@@ -64,14 +88,39 @@ void startShow(int i) {
   }
 }
 
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<strip.numPixels(); i++) {
+// Fill the  one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) 
+{
+  unsigned long colorWipeClock = millis();
+  if(colorWipeClock - colorWipeLast >= wait)
+  {
+    Serial.println(colorWipeClock);
+    Serial.println(colorWipeLast);
     strip.setPixelColor(i, c);
+    strip.setPixelColor(i-1, strip.Color(0,0,0));
     strip.show();
-    delay(wait);
-  }
+    colorWipeLast = colorWipeClock;
+    if(i < strip.numPixels())
+    {
+      i++;
+    }
+    else
+    {
+      i = 0;
+    }
+  } 
 }
+
+
+
+
+//void colorWipe(uint32_t c, uint8_t wait) {
+//  for(uint16_t i=0; i<strip.numPixels(); i++) {
+//    strip.setPixelColor(i, c);
+//    strip.show();
+//    delay(wait);
+//  }
+//}
 
 void rainbow(uint8_t wait) {
   uint16_t i, j;
@@ -149,27 +198,63 @@ uint32_t Wheel(byte WheelPos) {
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
-void colorFadeRed(uint8_t wait) 
+void colorFade(int colorType, uint8_t wait) 
 {
-  for(int j = 0; j < 50; j++)
+  unsigned long colorFadeClock = millis();
+  switch(colorType)
   {
-    uint32_t c = strip.Color(j, 0, 0);
-    for(uint16_t i=0; i<strip.numPixels(); i++) 
+    case 0: c = strip.Color(j, 0, 0); // colorType 0 = red;
+      break;
+    case 1: c = strip.Color(0, j, 0); // colorType 1 = green;
+      break;
+    case 2: c = strip.Color(0, 0, j); // colorType 2 = blue;
+      break;
+    case 3: c = strip.Color(j, j, 0); // colorType 3 = yellow;
+      break;
+    case 4: c = strip.Color(j, 0, j); // colorType 4 = purple;
+      break;
+    case 5: c = strip.Color(0, j, j); // colorType 5 = teal;
+      break;
+  }
+  if(colorFadeTop == 0)
+  {
+    if(colorFadeClock - colorFadeLast >= wait)
     {
-      strip.setPixelColor(i, c);
-      strip.show();
+      for(uint16_t i=0; i<strip.numPixels(); i++) 
+      {
+        strip.setPixelColor(i, c);
+        strip.show();
+      }
+      colorFadeLast = colorFadeClock;
+      if(j < 255)
+      {
+        j+=5;
+      }
+      else
+      {
+        colorFadeTop = 1;
+      }
     }
-    delay(wait);
   }
 
-  for(int j = 50; j > 0; j--)
+  if(colorFadeTop == 1)
   {
-    uint32_t c = strip.Color(j, 0, 0);
-    for(uint16_t i=0; i<strip.numPixels(); i++) 
+    if(colorFadeClock - colorFadeLast >= wait)
     {
-      strip.setPixelColor(i, c);
-      strip.show();
+      for(uint16_t i=0; i<strip.numPixels(); i++) 
+      {
+        strip.setPixelColor(i, c);
+        strip.show();
+      }
+      colorFadeLast = colorFadeClock;
+      if(j > 0)
+      {
+        j-=5;
+      }
+      else
+      {
+        colorFadeTop = 0;
+      }
     }
-    delay(wait);
   }
 }
