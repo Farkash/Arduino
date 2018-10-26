@@ -51,7 +51,7 @@ void loop()
     if (newState == LOW) 
     {
       showType++;
-      if (showType > 8)
+      if (showType > 10)
         showType=0;
 //      startShow(showType);
       Serial.print("newState:");
@@ -85,6 +85,10 @@ void startShow(int i) {
     case 7: randomColorWipe(20, 0);
             break;
     case 8: randomPixel(20, 100);
+            break;
+    case 9: randomPixel(10, 200);
+            break;
+    case 10: randomPixel(5, 400);
             break;
 //    case 5: colorWipe(strip.Color(0, 0, 255), 20);
 //            break;
@@ -293,12 +297,11 @@ long randomColorPicker(int a, int b)
 
 // random pixels, controlled color sequence.
 // random pixels contantly 
-// random color for 100 iterations
-// once 100 is done, clean all quickly so there isn't any color overlap
+// random color for x iterations
 // Randomly pick a pixel with random(0,24).
 // Randomly pick a state, on or off, with random(0,2).
 // Have a counter that's tracking how many times a pixel is targeted.
-// Utilize randomColorPicker if possible. Cuz that's cool
+// Utilize randomColorPicker. Cuz that's cool
 void randomPixel(uint8_t wait, int x) 
 {
   unsigned long colorWipeClock = millis();
@@ -336,12 +339,5 @@ void randomPixel(uint8_t wait, int x)
 }
 
 
-// Wipe through colors sequentially, each round gets brighter, then down 
-// to zero. Then switch color and go up and down again.
-void colorStreakVaryBright()
-{
-
-  
-}
 
 
