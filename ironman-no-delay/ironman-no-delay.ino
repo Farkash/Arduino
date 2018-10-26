@@ -23,6 +23,8 @@ unsigned long colorFadeLast = 0;
 int j = 0;
 int colorFadeTop = 0;
 uint32_t c;
+unsigned long randomPixelLast;
+int randomIteration = 0;
 
 void setup() 
 {
@@ -30,6 +32,7 @@ void setup()
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+  randomSeed(analogRead(0));
 }
 
 void loop() 
@@ -48,7 +51,7 @@ void loop()
     if (newState == LOW) 
     {
       showType++;
-      if (showType > 6)
+      if (showType > 8)
         showType=0;
 //      startShow(showType);
       Serial.print("newState:");
@@ -65,20 +68,28 @@ void loop()
 
 void startShow(int i) {
   switch(i){
-    case 0: colorWipe(strip.Color(0, 0, 0), 20);    // Black/off
+    case 0: colorWipe(strip.Color(0, 0, 0), 20, 1); // Black/off
             break;
-    case 1: colorFade(0,10);  // Red
+    case 1: colorFade(0,20);
             break;
-    case 2: colorFade(2,10);  // blue
+    case 2: colorFade(1,20);
             break;
-    case 3: colorWipe(strip.Color(255, 0, 0), 20);
+    case 3: colorFade(2,20);
             break;
-    case 4: colorWipe(strip.Color(0, 255, 0), 20);
+    case 4: colorFade(3,20);
             break;
-    case 5: colorWipe(strip.Color(0, 0, 255), 20);
+    case 5: colorFade(4,20);
             break;
-    case 6: colorWipe(strip.Color(255, 255, 0), 20);
+    case 6: colorFade(5,20);
             break;
+    case 7: randomColorWipe(20, 0);
+            break;
+    case 8: randomPixel(20, 100);
+            break;
+//    case 5: colorWipe(strip.Color(0, 0, 255), 20);
+//            break;
+//    case 6: colorWipe(strip.Color(255, 255, 0), 20);
+//            break;
 //    case 7: rainbow(20);
 //            break;
 //    case 8: rainbowCycle(20);
@@ -89,7 +100,7 @@ void startShow(int i) {
 }
 
 // Fill the  one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) 
+void colorWipe(uint32_t c, uint8_t wait, int d) 
 {
   unsigned long colorWipeClock = millis();
   if(colorWipeClock - colorWipeLast >= wait)
@@ -97,7 +108,7 @@ void colorWipe(uint32_t c, uint8_t wait)
     Serial.println(colorWipeClock);
     Serial.println(colorWipeLast);
     strip.setPixelColor(i, c);
-    strip.setPixelColor(i-1, strip.Color(0,0,0));
+    strip.setPixelColor(i-d, strip.Color(0,0,0));
     strip.show();
     colorWipeLast = colorWipeClock;
     if(i < strip.numPixels())
@@ -112,29 +123,6 @@ void colorWipe(uint32_t c, uint8_t wait)
 }
 
 
-
-
-//void colorWipe(uint32_t c, uint8_t wait) {
-//  for(uint16_t i=0; i<strip.numPixels(); i++) {
-//    strip.setPixelColor(i, c);
-//    strip.show();
-//    delay(wait);
-//  }
-//}
-
-void rainbow(uint8_t wait) {
-  uint16_t i, j;
-
-  for(j=0; j<256; j++) {
-    for(i=0; i<strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel((i+j) & 255));
-    }
-    strip.show();
-    delay(wait);
-  }
-}
-
-// Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
 
@@ -198,6 +186,7 @@ uint32_t Wheel(byte WheelPos) {
   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
 
+// colorFade
 void colorFade(int colorType, uint8_t wait) 
 {
   unsigned long colorFadeClock = millis();
@@ -258,3 +247,101 @@ void colorFade(int colorType, uint8_t wait)
     }
   }
 }
+
+
+// random colorWipe 
+void randomColorWipe(uint8_t wait, int d) 
+{
+  unsigned long colorWipeClock = millis();
+  if(colorWipeClock - colorWipeLast >= wait)
+  {
+    if(i == 0) // only change the color at beginning of cycle
+    {
+      long randomRed = randomColorPicker(0,5);
+      long randomGreen = randomColorPicker(0,5);
+      long randomBlue = randomColorPicker(0,5);
+      c = strip.Color(randomRed, randomGreen, randomBlue);
+    }
+    strip.setPixelColor(i, c);
+    if(d != 0)
+    {
+      strip.setPixelColor(i-d, strip.Color(0,0,0));
+    }
+    strip.show();
+    colorWipeLast = colorWipeClock;
+    if(i < strip.numPixels())
+    {
+      i++;
+    }
+    else
+    {
+      i = 0;
+    }
+  } 
+}
+
+
+long randomColorPicker(int a, int b)
+{
+  int rint = random(a,b);
+  int diff = b - a;
+  float interval = 256 / diff;
+  int intervalInt = (int)interval;
+  return rint * intervalInt;
+}
+
+
+// random pixels, controlled color sequence.
+// random pixels contantly 
+// random color for 100 iterations
+// once 100 is done, clean all quickly so there isn't any color overlap
+// Randomly pick a pixel with random(0,24).
+// Randomly pick a state, on or off, with random(0,2).
+// Have a counter that's tracking how many times a pixel is targeted.
+// Utilize randomColorPicker if possible. Cuz that's cool
+void randomPixel(uint8_t wait, int x) 
+{
+  unsigned long colorWipeClock = millis();
+  if(colorWipeClock - randomPixelLast >= wait)
+  {
+    if(randomIteration == 0) // only change the color at beginning of cycle
+    {
+      long randomRed = randomColorPicker(0,5);
+      long randomGreen = randomColorPicker(0,5);
+      long randomBlue = randomColorPicker(0,5);
+      c = strip.Color(randomRed, randomGreen, randomBlue);
+    }
+    // Random pixel indexing logic goes here
+    int pixel = random(24);
+    int state = random(2);
+    if(state == 0) // pixel off
+    {
+      strip.setPixelColor(pixel, strip.Color(0, 0, 0));
+    }
+    else
+    {
+      strip.setPixelColor(pixel, c);
+    }
+    strip.show();
+    randomPixelLast = colorWipeClock;
+    if(randomIteration < x)
+    {
+      randomIteration++;
+    }
+    else
+    {
+      randomIteration = 0;
+    }
+  } 
+}
+
+
+// Wipe through colors sequentially, each round gets brighter, then down 
+// to zero. Then switch color and go up and down again.
+void colorStreakVaryBright()
+{
+
+  
+}
+
+
