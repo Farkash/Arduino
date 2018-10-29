@@ -1,3 +1,5 @@
+// Just add sound and you'll be good to go
+
 #include <Adafruit_NeoPixel.h>
 #include <Wire.h>
 #include <SparkFun_LED_8x7.h>
@@ -47,7 +49,7 @@ if(millis() < 10)
   Plex.scrollText("Live long and prosper Marissa! -Steve", 1);
 }
 
-if(millis() > 7000)
+if(millis() > 19000)
 {
   randomMatrix(10);
 }
@@ -55,23 +57,37 @@ if(millis() > 7000)
 
 switch(cycleTracker)
 {
-  case 0: colorWipe(strip.Color(150, 0, 0), 20, 0);
+  case 0: colorFade(0, 10, 1);
     break;
-  case 1: colorWipe(strip.Color(0, 150, 0), 20, 0);
+  case 1: colorFade(1, 10, 1);
     break;
-  case 2: colorWipe(strip.Color(0, 0, 150), 20, 0);
+  case 2: colorFade(2, 10, 1);
     break;
-  case 3: colorWipe(strip.Color(150, 150, 0), 20, 0);
+  case 3: colorFade(3, 10, 1);
     break;
-  case 4: colorWipe(strip.Color(150, 0, 150), 20, 0);
+  case 4: colorWipe(strip.Color(150, 0, 0), 30, 0);
     break;
-  case 5: colorWipe(strip.Color(0, 150, 150), 20, 0);
+  case 5: colorWipe(strip.Color(0, 150, 0), 30, 1);
     break;
-  case 6: colorFade(1, 10, 2);
+  case 6: colorWipe(strip.Color(0, 150, 0), 30, 0);
     break;
-  case 7: randomPixel(20, 100, 50);
+  case 7: colorWipe(strip.Color(0, 0, 150), 30, 1);
     break;
-  case 10: randomColorWipe(20, 0, 3);
+  case 8: colorWipe(strip.Color(0, 0, 150), 30, 0);
+    break;
+  case 9: colorWipe(strip.Color(150, 150, 0), 30, 1);
+    break;
+  case 10: colorWipe(strip.Color(150, 150, 0), 30, 0);
+    break;
+  case 11: colorWipe(strip.Color(150, 0, 150), 30, 1);
+    break;
+  case 12: colorWipe(strip.Color(150, 0, 150), 30, 0);
+    break;
+  case 13: colorWipe(strip.Color(0, 150, 150), 30, 1);
+    break;
+  case 14: colorWipe(strip.Color(0, 150, 150), 30, 0);
+    break;
+  case 15: randomPixel(20, 100);
     break;
 }
 
@@ -184,6 +200,7 @@ void colorFade(int colorType, uint8_t wait, int iterations)
   if(colorFadeIteration >= iterations)
   {
     cycleTracker ++;
+    colorFadeIteration = 0;
   }
 }
 
@@ -246,7 +263,7 @@ long randomColorPicker(int a, int b)
 // Randomly pick a state, on or off, with random(0,2).
 // Have a counter that's tracking how many times a pixel is targeted.
 // Utilize randomColorPicker. Cuz that's cool
-void randomPixel(uint8_t wait, int x, int iterations) 
+void randomPixel(uint8_t wait, int x) 
 {
   unsigned long colorWipeClock = millis();
   if(colorWipeClock - randomPixelLast >= wait)
@@ -278,14 +295,8 @@ void randomPixel(uint8_t wait, int x, int iterations)
     else
     {
       randomIteration = 0;
-      randomPixelIteration++;
     }
   } 
-
-  if(randomPixelIteration > iterations)
-  {
-    cycleTracker++;
-  }
 }
 
 
