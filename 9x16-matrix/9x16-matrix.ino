@@ -2,7 +2,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
 #include <Adafruit_NeoPixel.h>
-int neoPixelCount = 8;
+int neoPixelCount = 7;
 int neoPixelPin = 6;
 
 // If you're using the full breakout...
@@ -19,7 +19,8 @@ unsigned long colorWipeLast = 0;
 int i = 0;
 uint32_t c;
 int cycleTracker = 0;
-
+int sensorPin = A0;    // select the input pin for the potentiometer
+int sensorValue = 0;  // variable to store the value coming from the sensor
 
 void setup() {
   Serial.begin(9600);
@@ -42,10 +43,21 @@ void loop() {
 //      for (uint8_t y = 0; y < 9; y++)
 //        ledmatrix.drawPixel(x, y, sweep[(x+y+incr)%24]);
 //  delay(20);
-
+sensorValue = analogRead(sensorPin);
+Serial.println(sensorValue);
 randomPixel(10);
-colorWipe(strip.Color(0, 150, 0), 30, 1);
+colorWipe(0, 255, 0, 200, 1);
+}
 
+uint32_t colorPicker(int r, int g, int b) 
+{
+  float red = (r/10) * (sensorValue / 105);
+  int redAdj = (int)red;
+  float green = (g/10) * (sensorValue / 105);
+  int greenAdj = (int)green;
+  float blue = (b/10) * (sensorValue / 105);
+  int blueAdj = (int)blue;
+  return strip.Color(redAdj, greenAdj, blueAdj);
 }
 
 void randomPixel(int wait)
@@ -70,22 +82,26 @@ void randomPixel(int wait)
 //      case 4: brightLevel = 150;
 //        break;
     }
-    Serial.println(bright);
-    Serial.println(brightLevel);
     if(state == 0)
       ledmatrix.drawPixel(x, y, brightLevel);
     else
       ledmatrix.drawPixel(x, y, 0);
     randomLast = randomClock;
   }
-
 }
 
-void colorWipe(uint32_t c, uint8_t wait, int d) 
+void colorWipe(int r, int g, int b, uint8_t wait, int d) 
 {
   unsigned long colorWipeClock = millis();
   if(colorWipeClock - colorWipeLast >= wait)
   {
+    float red = (r/10) * (sensorValue / 105);
+    int redAdj = (int)red;
+    float green = (g/10) * (sensorValue / 105);
+    int greenAdj = (int)green;
+    float blue = (b/10) * (sensorValue / 105);
+    int blueAdj = (int)blue;
+    c = strip.Color(redAdj, greenAdj, blueAdj);
     strip.setPixelColor(i, c);
     if(d != 0)
     {

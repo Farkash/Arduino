@@ -76,28 +76,60 @@ int randomIteration = 0;
 uint32_t c;
 unsigned long colorWipeLast = 0;
 int i = 0;
-
+int sensorPin = A0;    // select the input pin for the potentiometer
+int sensorValue = 0;  // variable to store the value coming from the sensor
+#define BUTTON_PIN   7
 int noteIndex = 0;
+bool oldState = HIGH;
+int showType = 0;
+long r;
+long g;
+long b;
 
 void setup() {
   // Setup print to console for debugging:
   Serial.begin(9600);
-
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-
   if (! matrix.begin()) {
     Serial.println("IS31 not found");
     while (1);
   }
-  Serial.println("IS31 found!");
-
-//  delay(1000);
- 
+  Serial.println("IS31 found!"); 
 }
 
 void loop() 
 {  
+  // Get current button state.
+  bool newState = digitalRead(BUTTON_PIN);
+  Serial.println(newState);
+
+  // Check if state changed from high to low (button press).
+  if (newState == LOW && oldState == HIGH) 
+  {
+    // Short delay to debounce button.
+    delay(20);
+    // Check if button is still low after debounce.
+    newState = digitalRead(BUTTON_PIN);
+    if (newState == LOW) 
+    {
+      showType++;
+      if (showType > 2)
+        showType=0;
+//    startShow(showType);
+      Serial.print("newState:");
+      Serial.println(newState);
+      Serial.print("showType:");
+      Serial.println(showType);
+    }
+  }
+  // Set the last button state to the old state.
+  oldState = newState;
+  startShow(showType);
+  sensorValue = analogRead(sensorPin);
+  Serial.println(sensorValue);
+  
   timeFiller(300);
   perimeter();
   randomColorWipe(80, 0);
@@ -109,6 +141,23 @@ void loop()
 
 ////////////////function declaration section////////////////
 
+void startShow(int i) 
+{
+  switch(i)
+  {
+    case 0: timeFiller(300);
+            perimeter();
+            randomColorWipe(80, 0);
+            harryPotterSong();
+            break;
+    case 1: 
+            break;
+    case 2: 
+            break;
+  }
+}
+
+
 void randomColorWipe(uint8_t wait, int d) 
 {
   unsigned long colorWipeClock = millis();
@@ -116,11 +165,17 @@ void randomColorWipe(uint8_t wait, int d)
   {
     if(i == 0) // only change the color at beginning of cycle
     {
-      long randomRed = randomColorPicker(0,5);
-      long randomGreen = randomColorPicker(0,5);
-      long randomBlue = randomColorPicker(0,5);
-      c = strip.Color(randomRed, randomGreen, randomBlue);
+      r = randomColorPicker(0,5);
+      g = randomColorPicker(0,5);
+      b = randomColorPicker(0,5);
     }
+    float red = (r/10) * (sensorValue / 105);
+    int redAdj = (int)red;
+    float green = (g/10) * (sensorValue / 105);
+    int greenAdj = (int)green;
+    float blue = (b/10) * (sensorValue / 105);
+    int blueAdj = (int)blue;
+    c = strip.Color(redAdj, greenAdj, blueAdj);
     strip.setPixelColor(i, c);
     if(d != 0)
     {
@@ -143,7 +198,7 @@ long randomColorPicker(int a, int b)
 {
   int rint = random(a,b);
   int diff = b - a;
-  float interval = 15 / diff;
+  float interval = 255 / diff;
   int intervalInt = (int)interval;
   return rint * intervalInt;
 }
@@ -162,10 +217,16 @@ void randomPixel(uint8_t wait, int x)
   {
     if(randomIteration == 0) // only change the color at beginning of cycle
     {
-      long randomRed = randomColorPicker(0,5);
-      long randomGreen = randomColorPicker(0,5);
-      long randomBlue = randomColorPicker(0,5);
-      c = strip.Color(randomRed, randomGreen, randomBlue);
+      long r = randomColorPicker(0,5);
+      long g = randomColorPicker(0,5);
+      long b = randomColorPicker(0,5);
+      float red = (r/10) * (sensorValue / 105);
+      int redAdj = (int)red;
+      float green = (g/10) * (sensorValue / 105);
+      int greenAdj = (int)green;
+      float blue = (b/10) * (sensorValue / 105);
+      int blueAdj = (int)blue;
+      c = strip.Color(redAdj, greenAdj, blueAdj);
     }
     // Random pixel indexing logic goes here
     int pixel = random(24);
