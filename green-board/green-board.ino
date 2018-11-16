@@ -2,8 +2,26 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
 #include <Adafruit_NeoPixel.h>
+#include <TimerOne.h>
+#include "TM1637.h"
+#define ON 1
+#define OFF 0
 int neoPixelCount = 12;
 int neoPixelPin = 13;
+#define BUTTON_PIN   5
+bool oldState = HIGH;
+int showType = 0;
+int8_t TimeDisp[] = {0x00,0x00,0x00,0x00};
+unsigned char ClockPoint = 1;
+unsigned char Update;
+unsigned char halfsecond = 0;
+unsigned char second;
+unsigned char minute = 0;
+unsigned char hour = 12;
+#define DIO 2
+#define CLK 3  //pins definitions for TM1637 and can be changed to other ports
+
+TM1637 tm1637(CLK,DIO);
 
 // If you're using the full breakout...
 Adafruit_IS31FL3731 ledmatrix = Adafruit_IS31FL3731();
@@ -29,6 +47,7 @@ int randomIteration = 0;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   Serial.println("ISSI swirl test");
 
   if (! ledmatrix.begin()) {
@@ -39,9 +58,45 @@ void setup() {
   randomSeed(analogRead(0));
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+  tm1637.set();
+  tm1637.init();
+  Timer1.initialize(500000);//timing for 500ms
+  Timer1.attachInterrupt(TimingISR);//declare the interrupt serve routine:TimingISR
+
 }
 
 void loop() {
+  if(Update == ON)
+  {
+    TimeUpdate();
+    tm1637.display(TimeDisp);
+  }
+  
+  bool newState = digitalRead(BUTTON_PIN);
+  Serial.println(newState);
+//  long sensorValue = analogRead(sensorPin);
+//  Serial.println(sensorValue);
+  if (newState == LOW && oldState == HIGH) 
+  {
+    // Short delay to debounce button.
+    delay(20);
+    // Check if button is still low after debounce.
+    newState = digitalRead(BUTTON_PIN);
+    if (newState == LOW) 
+    {
+      showType++;
+      if (showType > 2)
+        showType=0;
+//    startShow(showType);
+      Serial.print("newState:");
+      Serial.println(newState);
+      Serial.print("showType:");
+      Serial.println(showType);
+    }
+  }
+  // Set the last button state to the old state.
+  oldState = newState;
+  
   // animate over all the pixels, and set the brightness from the sweep table
 //  for (uint8_t incr = 0; incr < 24; incr++)
 //    for (uint8_t x = 0; x < 16; x++)
@@ -158,4 +213,37 @@ void randomColorWipe(uint8_t wait, int d)
       i = 0;
     }
   } 
+}
+
+void TimingISR()
+{
+  halfsecond ++;
+  Update = ON;
+  if(halfsecond == 2){
+    second ++;
+    if(second == 60)
+    {
+      minute ++;
+      if(minute == 60)
+      {
+        hour ++;
+        if(hour == 24)hour = 0;
+        minute = 0;
+      }
+      second = 0;
+    }
+    halfsecond = 0;
+  }
+ // Serial.println(second);
+  ClockPoint = (~ClockPoint) & 0x01;
+}
+void TimeUpdate(void)
+{
+  if(ClockPoint)tm1637.point(POINT_ON);
+  else tm1637.point(POINT_OFF);
+  TimeDisp[0] = hour / 10;
+  TimeDisp[1] = hour % 10;
+  TimeDisp[2] = minute / 10;
+  TimeDisp[3] = minute % 10;
+  Update = OFF;
 }
