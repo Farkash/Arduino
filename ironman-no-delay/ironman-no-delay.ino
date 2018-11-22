@@ -1,12 +1,3 @@
-// EXISING PROBLEMS:
-// The functions are only called if the state of the switch changes.
-// Need to get it to call every time the main loop runs. 
-// The switch should only change the function that it calls. 
-
-// The loop only calls startShow() when the button pin reads LOW (switch is
-// pressed). I need it to call startShow() every time the loop runs,
-// and the button press only increments the showType.
-
 // Iron Man Arc Reactor
 #include <Adafruit_NeoPixel.h>
 #define BUTTON_PIN   2

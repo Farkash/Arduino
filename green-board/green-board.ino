@@ -73,9 +73,9 @@ void loop() {
   }
   
   bool newState = digitalRead(BUTTON_PIN);
-  Serial.println(newState);
-//  long sensorValue = analogRead(sensorPin);
-//  Serial.println(sensorValue);
+//  Serial.println(newState);
+  long sensorValue = analogRead(sensorPin);
+  Serial.println(sensorValue);
   if (newState == LOW && oldState == HIGH) 
   {
     // Short delay to debounce button.
@@ -126,6 +126,11 @@ void randomPixel(int wait)
     int y = random(0,9);
     int state = random(2);
     int bright = random(1, 4);
+//    Serial.println(sensorValue);
+//    float brightness = (sensorValue / 10);
+//    int brightLevel = (int)brightness;
+//    Serial.println(brightness);
+//    Serial.println(brightLevel);
 //    int brightLevel = bright * 127;
     int brightLevel;
     switch(bright)
