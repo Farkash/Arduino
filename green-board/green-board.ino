@@ -20,7 +20,7 @@ unsigned char minute = 0;
 unsigned char hour = 12;
 #define DIO 2
 #define CLK 3  //pins definitions for TM1637 and can be changed to other ports
-
+int r, g, b;
 TM1637 tm1637(CLK,DIO);
 
 // If you're using the full breakout...
@@ -38,24 +38,21 @@ int i = 0;
 uint32_t c;
 int cycleTracker = 0;
 int sensorPin = A0;    // select the input pin for the potentiometer
-int sensorValue = 0;  // variable to store the value coming from the sensor
-long r;
-long g;
-long b;
+long rawPot;
+int cleanPot;
 unsigned long randomPixelLast;
 int randomIteration = 0;
 
 void setup() {
   Serial.begin(9600);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  Serial.println("ISSI swirl test");
 
   if (! ledmatrix.begin()) {
     Serial.println("IS31 not found");
     while (1);
   }
   Serial.println("IS31 found!");
-  randomSeed(analogRead(0));
+//  randomSeed(analogRead(1));
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
   tm1637.set();
@@ -74,8 +71,49 @@ void loop() {
   
   bool newState = digitalRead(BUTTON_PIN);
 //  Serial.println(newState);
-  long sensorValue = analogRead(sensorPin);
-  Serial.println(sensorValue);
+  rawPot = analogRead(sensorPin);
+  if(rawPot >= 0 && rawPot < 100)
+  {
+    cleanPot = 1;
+  }
+  else if(rawPot >= 100 && rawPot < 200)
+  {
+    cleanPot = 2;
+  }
+  else if(rawPot >= 200 && rawPot < 300)
+  {
+    cleanPot = 3;
+  }
+  else if(rawPot >= 300 && rawPot < 400)
+  {
+    cleanPot = 4;
+  }
+  else if(rawPot >= 400 && rawPot < 500)
+  {
+    cleanPot = 5;
+  }
+  else if(rawPot >= 500 && rawPot < 600)
+  {
+    cleanPot = 6;
+  }
+  else if(rawPot >= 600 && rawPot < 700)
+  {
+    cleanPot = 7;
+  }
+  else if(rawPot >= 700 && rawPot < 800)
+  {
+    cleanPot = 8;
+  }
+  else if(rawPot >= 800 && rawPot < 900)
+  {
+    cleanPot = 9;
+  }
+  else
+  {
+    cleanPot = 10;
+  }
+              
+//  Serial.println(rawPot);
   if (newState == LOW && oldState == HIGH) 
   {
     // Short delay to debounce button.
@@ -105,29 +143,28 @@ void loop() {
 //  delay(20);
 randomPixel(10);
 //randomColorWipe(100, 0);
-randomColorPixel(30, 100);
+randomColorPixel(30, 10);
 }
 
 long randomColorPicker(int a, int b)
 {
   int rint = random(a,b);
-  int diff = b - a;
-  float interval = 256 / diff;
+  int diff = (b-1) - a;
+  float interval = 255 / diff;
   int intervalInt = (int)interval;
   return rint * intervalInt;
 }
 
 void randomPixel(int wait)
 {
-  unsigned long randomClock = millis();
-  if(randomClock - randomLast > wait)
+  if(millis() - randomLast > wait)
   {
     int x = random(0,16);
     int y = random(0,9);
     int state = random(2);
     int bright = random(1, 4);
-//    Serial.println(sensorValue);
-//    float brightness = (sensorValue / 10);
+//    Serial.println(rawPot);
+//    float brightness = (rawPot / 10);
 //    int brightLevel = (int)brightness;
 //    Serial.println(brightness);
 //    Serial.println(brightLevel);
@@ -148,23 +185,39 @@ void randomPixel(int wait)
       ledmatrix.drawPixel(x, y, brightLevel);
     else
       ledmatrix.drawPixel(x, y, 0);
-    randomLast = randomClock;
+    randomLast = millis();
   }
 }
 
-void randomColorPixel(uint8_t wait, int x) 
+void randomColorPixel(uint8_t wait, int count) 
 {
-  unsigned long colorWipeClock = millis();
-  if(colorWipeClock - randomPixelLast >= wait)
+  if(millis() - randomPixelLast >= wait)
   {
     if(randomIteration == 0) // only change the color at beginning of cycle
     {
-      long randomRed = randomColorPicker(0,5);
-      long randomGreen = randomColorPicker(0,5);
-      long randomBlue = randomColorPicker(0,5);
-      c = strip.Color((int)(randomRed/10), (int)(randomGreen/10), (int)(randomBlue/10));
+      r = randomColorPicker(0,5);
+      g = randomColorPicker(0,5);
+      b = randomColorPicker(0,5);
     }
-    // Random pixel indexing logic goes here
+    float red = (r/10) * cleanPot;
+    int redAdj = (int)red;
+    float green = (g/10) * cleanPot;
+    int greenAdj = (int)green;
+    float blue = (b/10) * cleanPot;
+    int blueAdj = (int)blue;
+    Serial.print(rawPot);
+    Serial.print("    ");
+    Serial.print(cleanPot);
+    Serial.print("    ");
+    Serial.print(r);
+    Serial.print("    ");
+    Serial.println(redAdj);
+//    Serial.print(redAdj);
+//    Serial.print("    ");
+//    Serial.print(greenAdj);
+//    Serial.print("    ");
+//    Serial.print(blueAdj);
+//    Serial.println("");
     int pixel = random(12);
     int state = random(2);
     if(state == 0) // pixel off
@@ -173,11 +226,11 @@ void randomColorPixel(uint8_t wait, int x)
     }
     else
     {
-      strip.setPixelColor(pixel, c);
+      strip.setPixelColor(pixel, strip.Color(redAdj, greenAdj, blueAdj));
     }
     strip.show();
-    randomPixelLast = colorWipeClock;
-    if(randomIteration < x)
+    randomPixelLast = millis();
+    if(randomIteration < count)
     {
       randomIteration++;
     }
