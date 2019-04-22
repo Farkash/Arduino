@@ -18,8 +18,8 @@ uint32_t c;
 int colorCounter = 0;
 int cycleColor;
 unsigned long rainbowLast = 0;
-int rainbowx = 0;
-int rainbowy = 0;
+uint16_t rainbowj;
+int colorType = 0;
 
 //Constructor
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(12, neoPin, NEO_GRB + NEO_KHZ800);
@@ -61,23 +61,20 @@ void loop()
   // the button controls the mode
   switch(mode)
   {
-    case 0: colorCycle(brightness, wait);
+    case 0: rainbow(20);
             break;
-    case 1: colorCycle(brightness, wait*2);
+    case 1: rainbowCycle(20);
             break;
-    case 2: colorFade(0, 50);
+    case 2: colorCycle(brightness, wait);
             break;
-    case 3: rainbow(50);
+    case 3: colorCycle(brightness, wait*2);
             break;
-    case 4: rainbowCycle(50);
+    case 4: colorFade(50);
             break;
     
   }
 
 }
-
-
-
 
 
 // Fill the dots one after the other with a color
@@ -120,17 +117,11 @@ void colorCycle(int brightness, uint8_t wait)
 }
 
 
-
-
-
-
-
-
-
 // colorFade
-void colorFade(int colorType, uint8_t wait) 
+void colorFade(uint8_t wait) 
 {
   unsigned long colorFadeClock = millis();
+  
   switch(colorType)
   {
     case 0: c = strip.Color(j, 0, 0); // colorType 0 = red;
@@ -146,6 +137,10 @@ void colorFade(int colorType, uint8_t wait)
     case 5: c = strip.Color(0, j, j); // colorType 5 = teal;
       break;
   }
+
+
+
+  
   if(colorFadeTop == 0)
   {
     if(colorFadeClock - colorFadeLast >= wait)
@@ -184,6 +179,14 @@ void colorFade(int colorType, uint8_t wait)
       else
       {
         colorFadeTop = 0;
+        if(colorType < 5)
+        {
+          colorType++;
+        }
+        else
+        {
+          colorType = 0;
+        }
       }
     }
   }
@@ -191,90 +194,65 @@ void colorFade(int colorType, uint8_t wait)
 
 
 
-void rainbow(uint8_t wait) {
+void rainbow(uint8_t wait) 
+{
   
   unsigned long rainbowClock = millis();
 
   if(rainbowClock - rainbowLast >= wait)
   {
 
-    strip.setPixelColor(rainbowy, Wheel((rainbowy+rainbowx) & 255));
-    strip.show();
-    
-    if(rainbowx < 256)
+    // Iterate through colors
+    if(rainbowj < 256)
     {
-      rainbowx++;
+      rainbowj++;
     }
     else
     {
-      rainbowx = 0;
+      rainbowj = 0;
     }
 
-    if(rainbowy < strip.numPixels())
-    {
-      rainbowy++;
-    }
-    else
-    {
-      rainbowy = 0;
-    }
-    
+    // Apply the new color to every pixel in an instant
+    for(int x = 0; x < strip.numPixels(); x++)
+      {
+        strip.setPixelColor(x, Wheel((x + rainbowj) & 255));
+      }
+
+    strip.show();
+        
     rainbowLast = rainbowClock;
   }
 
 }
 
 
-
-
-
-
-
-
-
-// Slightly different, this makes the rainbow equally distributed throughout
-void rainbowCycle(uint8_t wait) {
-
-//  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-//    for(i=0; i< strip.numPixels(); i++) {
-//      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-//    }
-//    strip.show();
-//    delay(wait);
-//  }
-
-
+void rainbowCycle(uint8_t wait) 
+{
+  
   unsigned long rainbowClock = millis();
 
   if(rainbowClock - rainbowLast >= wait)
   {
+    // Iterate through colors
+    if(rainbowj < 256*5)
+    {
+      rainbowj++;
+    }
+    else
+    {
+      rainbowj = 0;
+    }
 
-    strip.setPixelColor(rainbowy, Wheel(((rainbowy * 256 / strip.numPixels()) + rainbowx) & 255));
+    // Apply the new color to every pixel in an instant
+    for(int x = 0; x < strip.numPixels(); x++)
+      {
+        strip.setPixelColor(x, Wheel(((x * 256 / strip.numPixels()) + rainbowj) & 255));
+      }
+
     strip.show();
-    
-    if(rainbowx < 256*5)
-    {
-      rainbowx++;
-    }
-    else
-    {
-      rainbowx = 0;
-    }
-
-    if(rainbowy < strip.numPixels())
-    {
-      rainbowy++;
-    }
-    else
-    {
-      rainbowy = 0;
-    }
     
     rainbowLast = rainbowClock;
   }
-
-
-
 
 }
 
