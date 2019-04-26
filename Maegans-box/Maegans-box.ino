@@ -5,7 +5,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_IS31FL3731.h>
-const int buzzerPin = 5;
+const int buzzerPin = 2;
 const float tempo = 0.8; 
 
 // notes for Harry Potter theme song
@@ -28,7 +28,7 @@ int duration[] = {         //duration of each note (in ms) Quarter Note is set t
 };
 
 #define NP_COUNT 24   // Amount of neopixels in strip
-#define NP_PIN    2   // Digital IO pin connected to the NeoPixels
+#define NP_PIN    3   // Digital IO pin connected to the NeoPixels
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NP_COUNT, NP_PIN, NEO_GRB + NEO_KHZ800);
 
 unsigned long prevMillisstrip = 0;
@@ -409,5 +409,3 @@ void stripMagic(int wait, int nLag)
     } 
   }
 }
-
-

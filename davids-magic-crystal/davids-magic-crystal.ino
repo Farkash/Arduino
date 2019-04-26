@@ -15,11 +15,16 @@ unsigned long colorFadeLast = 0;
 int j = 0;
 int colorFadeTop = 0;
 uint32_t c;
+uint32_t d;
 int colorCounter = 0;
 int cycleColor;
 unsigned long rainbowLast = 0;
 uint16_t rainbowj;
 int colorType = 0;
+int r, g, b;
+
+int noteIndex = 0;
+unsigned long prevMillisBuzz = 0;
 
 //Constructor
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(12, neoPin, NEO_GRB + NEO_KHZ800);
@@ -29,6 +34,68 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
   Serial.begin(9600);
   pinMode(buttonPin, INPUT_PULLUP);
+  
+  randomSeed(analogRead(1));
+  const float pitchAdjuster = random(30, 200) / 100.0;
+  const float tempoAdjuster = random(25, 125) / 100.0;
+  Serial.println("pitchAdjuster:");
+  Serial.println(pitchAdjuster);
+  Serial.println("tempoAdjuster");
+  Serial.println(tempoAdjuster);
+  // notes for Harry Potter theme song
+  #define E4  330 * pitchAdjuster
+  #define A4  440 * pitchAdjuster
+  #define C5  523 * pitchAdjuster
+  #define B4  494 * pitchAdjuster
+  #define A4  440 * pitchAdjuster
+  #define E5  659 * pitchAdjuster
+  #define D5  587 * pitchAdjuster
+  #define B4  494 * pitchAdjuster
+  
+  int notes[] = {
+    E4, A4, C5, B4,
+    A4, E5, D5, B4
+  };
+  int duration[] = {         //duration of each note (in ms) Quarter Note is set to 250 ms
+    350, 530, 210, 350,
+    700, 350, 1100, 1050
+  };
+  
+  
+  // Initialize all the LEDs with a random color
+  
+  int r = random(0, 6);
+  switch(r)
+  {
+    case 0: d = strip.Color(150, 0, 0);
+            break;
+    case 1: d = strip.Color(0, 150, 0);
+            break;
+    case 2: d = strip.Color(0, 0, 150);
+            break;
+    case 3: d = strip.Color(150, 150, 0);
+            break;
+    case 4: d = strip.Color(0, 150, 150);
+            break;
+    case 5: d = strip.Color(150, 0, 150);
+            break;
+  }
+  
+  for(int i = 0; i < strip.numPixels(); i++)
+  {
+    strip.setPixelColor(i, d);
+    strip.show();
+  }
+
+  // Play the Harry Potter song on intro
+  for(int i = 0; i < 8; i++)
+  {
+    tone(buzzerPin, notes[i]);
+    delay(duration[i] * tempoAdjuster);
+  }
+  // Turn the buzzer off
+  noTone(buzzerPin);
+  
 }
 
 void loop() 
@@ -46,32 +113,36 @@ void loop()
       mode++;
       if (mode > 4)
         mode = 0;
+        // Beep when button is pushed. 
+//      tone(buzzerPin, 400);
+//      delay(40);
+//      tone(buzzerPin, 1000);
+//      delay(40);
+//      noTone(buzzerPin);
     }
 
   }
   // Set the last button state to the old state.
   oldState = newState;
-  Serial.print("mode:");
-  Serial.println(mode);
 
   int potValue = analogRead(potPin);
-  int brightness = map(potValue, 0, 1023, 0, 255);
-
+  int brightness = map(potValue, 0, 1023, 10, 255);
+  int rainbowWait = map(potValue, 0, 1023, 40, 10);
+  int fadeWait = map(potValue, 0, 1023, 200, 1);
 
   // the button controls the mode
   switch(mode)
   {
-    case 0: rainbow(20);
+    case 0: rainbow(rainbowWait);
             break;
-    case 1: rainbowCycle(20);
+    case 1: rainbowCycle(rainbowWait);
             break;
     case 2: colorCycle(brightness, wait);
             break;
     case 3: colorCycle(brightness, wait*2);
             break;
-    case 4: colorFade(50);
+    case 4: colorFade(fadeWait);
             break;
-    
   }
 
 }
@@ -138,9 +209,6 @@ void colorFade(uint8_t wait)
       break;
   }
 
-
-
-  
   if(colorFadeTop == 0)
   {
     if(colorFadeClock - colorFadeLast >= wait)
